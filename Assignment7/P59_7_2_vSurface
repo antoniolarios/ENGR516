@@ -1,0 +1,73 @@
+% Antonio Larios ENGR 516 Summer 2019
+% Assignment 7
+% 59.7.2
+
+clear;
+
+fs = 5000; % sample frequency, Hz (samples per unit time)
+duration = 0.05; % signal duration, s
+fc = 200; % tone frequency component, Hz (fc*duration = number of peaks)
+A_tone = 5; % tone amplitude, mm
+A_noise = 0.5; % RMS noise level, mm
+N = duration*fs; % number of samples
+[f,t] = freqtime(1/fs,N);
+f_2_sided = f - f(N/2 + 1);% shift the frequency vector
+vel = A_tone*sin(2*pi*fc*t) + A_noise*randn(size(t));
+
+% Integrate and differentiate this signal to plot the displacement and
+% acceleration using both the time and frequency domain approaches
+% discussed in the text. In one figure window, plot the two integrals and
+% in the second plot, the two derivatives. Discuss the results.
+
+dis_tDomain = cumsum(vel)*(1/fs)-A_tone/(2*pi*fc);
+dis_fDomain =  integrate_fd(vel,(1/fs));
+% dis_analytic = -A_tone/2/pi/fc*cos(2*pi*fc*t);
+
+acc_tDomain = diff(vel)/(1/fs);
+acc_fDomain = derivative_fd(vel,(1/fs));
+% acc_analytic = 2*A_tone*pi*fc*cos(2*pi*fc*t);
+
+zf(1) = figure(1);clf;
+za(1) = axes;
+zp(1) = plot(t,dis_tDomain);
+grid on;
+xlabel('Time, s');
+ylabel('Displacement (time), m');
+set(za(1),'OuterPosition',[0 0.5 1 0.5])
+
+za(2) = axes;
+zp(2) = plot(t,dis_fDomain);
+grid on;
+xlabel('Time, s');
+ylabel('Displacement (freq), m');
+set(za(2),'OuterPosition',[0 0 1 0.5])
+
+ss1 = 'P59_7_2_vSurface_Displacement';
+figsize = [8 6];
+set(zf(1),'paperorientation','portrait')
+set(zf(1),'papersize',figsize)
+set(zf(1),'paperposition',[0 0 figsize]) %x start,y start,x length,y length
+print(zf(1),'-dpng','-r300','-painters',ss1)
+
+zf(2) = figure(2);clf;
+za(3) = axes;
+zp(3) = plot(t(1:end-1),acc_tDomain);
+grid on;
+xlabel('Time, s');
+ylabel('Acceleration (time), m/s^2');
+set(za(3),'OuterPosition',[0 0.5 1 0.5])
+
+za(4) = axes;
+zp(4) = plot(t,acc_fDomain);
+grid on;
+xlabel('Time, s');
+ylabel('Acceleration (freq), m/s^2');
+set(za(4),'OuterPosition',[0 0 1 0.5])
+
+ss2 = 'P59_7_2_vSurface_Acceleration';
+figsize = [8 6];
+set(zf(2),'paperorientation','portrait')
+set(zf(2),'papersize',figsize)
+set(zf(2),'paperposition',[0 0 figsize]) %x start,y start,x length,y length
+print(zf(2),'-dpng','-r300','-painters',ss2)
+
